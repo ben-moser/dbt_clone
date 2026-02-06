@@ -14,7 +14,6 @@ import {
   Position,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
-import dagre from "dagre"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -24,14 +23,18 @@ import { lineageEdges } from "@/lib/mock-data/lineage"
 import { ModelColumns } from "@/components/explore/model-columns"
 import type { Model } from "@/lib/mock-data/types"
 import {
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  RESOURCE_TYPES,
+  getResourceType,
+  getNodeBorderColor,
+  getLayoutedElements,
+  type ModelNodeData,
+} from "@/components/explore/lineage-utils"
+import {
   X,
   Box,
   Database,
-  Camera,
-  Sprout,
-  BarChart3,
-  Hexagon,
-  Bookmark,
   ArrowRight,
   FileText,
   Columns3,
@@ -41,42 +44,7 @@ import {
   Table2,
 } from "lucide-react"
 
-// ── Constants ────────────────────────────────────────────────────────────────
-
-const NODE_WIDTH = 200
-const NODE_HEIGHT = 50
-
-// Resource type configuration with colors matching dbt Cloud
-const RESOURCE_TYPES = [
-  { key: "model", label: "Model", color: "#FF694A", icon: Box },
-  { key: "source", label: "Source", color: "#27AE60", icon: Database },
-  { key: "snapshot", label: "Snapshot", color: "#9B59B6", icon: Camera },
-  { key: "seed", label: "Seed", color: "#0EA5E9", icon: Sprout },
-  { key: "metric", label: "Metric", color: "#F59E0B", icon: BarChart3 },
-  { key: "semantic_model", label: "Semantic Model", color: "#EC4899", icon: Hexagon },
-  { key: "saved_query", label: "Saved Query", color: "#6366F1", icon: Bookmark },
-] as const
-
-// Map model tags/schema to a resource type for display
-function getResourceType(model: Model): string {
-  if (model.tags.includes("source")) return "source"
-  if (model.schema === "metrics") return "metric"
-  return "model"
-}
-
-function getNodeBorderColor(resourceType: string): string {
-  const rt = RESOURCE_TYPES.find((r) => r.key === resourceType)
-  return rt ? rt.color : "#FF694A"
-}
-
 // ── Custom Node Component ────────────────────────────────────────────────────
-
-type ModelNodeData = {
-  label: string
-  materialization: string
-  resourceType: string
-  selected?: boolean
-}
 
 function ModelNode({ data }: NodeProps<Node<ModelNodeData>>) {
   const borderColor = getNodeBorderColor(data.resourceType)
@@ -109,40 +77,6 @@ function ModelNode({ data }: NodeProps<Node<ModelNodeData>>) {
 }
 
 const nodeTypes = { modelNode: ModelNode }
-
-// ── Layout with dagre ────────────────────────────────────────────────────────
-
-function getLayoutedElements(
-  nodes: Node<ModelNodeData>[],
-  edges: Edge[]
-): { nodes: Node<ModelNodeData>[]; edges: Edge[] } {
-  const dagreGraph = new dagre.graphlib.Graph()
-  dagreGraph.setDefaultEdgeLabel(() => ({}))
-  dagreGraph.setGraph({ rankdir: "LR", nodesep: 40, ranksep: 120 })
-
-  for (const node of nodes) {
-    dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
-  }
-
-  for (const edge of edges) {
-    dagreGraph.setEdge(edge.source, edge.target)
-  }
-
-  dagre.layout(dagreGraph)
-
-  const layoutedNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id)
-    return {
-      ...node,
-      position: {
-        x: nodeWithPosition.x - NODE_WIDTH / 2,
-        y: nodeWithPosition.y - NODE_HEIGHT / 2,
-      },
-    }
-  })
-
-  return { nodes: layoutedNodes, edges }
-}
 
 // ── Detail Row Helper ────────────────────────────────────────────────────────
 
