@@ -20,11 +20,20 @@ function generateCosts(): CostEntry[] {
       ? 9 + seededRandom(day * 11) * 6 - 3
       : 5 + seededRandom(day * 11) * 4 - 2
 
+    // Optimization factor: only 25-35% of models rebuild each run
+    const prodOptFactor = 0.25 + seededRandom(day * 13) * 0.10
+    const hourlyOptFactor = 0.25 + seededRandom(day * 17) * 0.10
+
+    const prodActual = Math.round(prodBase * 100) / 100
+    const hourlyActual = Math.round(hourlyBase * 100) / 100
+
     entries.push({
       date: label,
-      productionDaily: Math.round(prodBase * 100) / 100,
-      hourlyIncremental: Math.round(hourlyBase * 100) / 100,
+      productionDaily: prodActual,
+      hourlyIncremental: hourlyActual,
       stagingRefresh: Math.round(stagingBase * 100) / 100,
+      productionDailyUnoptimized: Math.round((prodActual / prodOptFactor) * 100) / 100,
+      hourlyIncrementalUnoptimized: Math.round((hourlyActual / hourlyOptFactor) * 100) / 100,
     })
   }
 

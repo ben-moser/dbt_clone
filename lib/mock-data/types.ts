@@ -76,4 +76,6 @@ export interface CostEntry {
   productionDaily: number;
   hourlyIncremental: number;
   stagingRefresh: number;
+  productionDailyUnoptimized: number;
+  hourlyIncrementalUnoptimized: number;
 }
