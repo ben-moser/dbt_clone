@@ -70,3 +70,10 @@ export interface LineageEdge {
   source: string;
   target: string;
 }
+
+export interface CostEntry {
+  date: string;
+  productionDaily: number;
+  hourlyIncremental: number;
+  stagingRefresh: number;
+}
