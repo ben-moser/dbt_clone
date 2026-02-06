@@ -5,6 +5,7 @@ import {
   FileText,
   Columns3,
   GitBranch,
+  GitFork,
   ArrowRight,
   User,
   Package,
@@ -16,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { ModelColumns } from "@/components/explore/model-columns"
+import { ModelLineageTab } from "@/components/explore/model-lineage-tab"
 import type { Model } from "@/lib/mock-data/types"
 
 // ── Constants ───────────────────────────────────────────────────────────────
@@ -108,6 +110,10 @@ export function ModelDetailTabs({
           <TabsTrigger value="relationships" className="gap-1.5">
             <GitBranch className="h-4 w-4" />
             Relationships
+          </TabsTrigger>
+          <TabsTrigger value="lineage" className="gap-1.5">
+            <GitFork className="h-4 w-4" />
+            Lineage
           </TabsTrigger>
         </TabsList>
 
@@ -260,6 +266,11 @@ export function ModelDetailTabs({
               </p>
             )}
           </div>
+        </TabsContent>
+
+        {/* Lineage Tab */}
+        <TabsContent value="lineage" className="pt-4">
+          <ModelLineageTab modelId={model.id} />
         </TabsContent>
       </Tabs>
     </div>
